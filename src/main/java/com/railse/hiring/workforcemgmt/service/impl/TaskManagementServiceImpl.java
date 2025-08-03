@@ -90,25 +90,38 @@ public class TaskManagementServiceImpl implements TaskManagementService {
                     .collect(Collectors.toList());
 
 
-            // BUG #1 is here. It should assign one and cancel the rest.
-            // Instead, it reassigns ALL of them.
-            if (!tasksOfType.isEmpty()) {
-                for (TaskManagement taskToUpdate : tasksOfType) {
-                    taskToUpdate.setAssigneeId(request.getAssigneeId());
-                    taskRepository.save(taskToUpdate);
-                }
-            } else {
-                // Create a new task if none exist
-                TaskManagement newTask = new TaskManagement();
-                newTask.setReferenceId(request.getReferenceId());
-                newTask.setReferenceType(request.getReferenceType());
-                newTask.setTask(taskType);
-                newTask.setAssigneeId(request.getAssigneeId());
-                newTask.setStatus(TaskStatus.ASSIGNED);
-                taskRepository.save(newTask);
+//            // BUG #1 is here. It should assign one and cancel the rest.
+//            // Instead, it reassigns ALL of them.
+//            if (!tasksOfType.isEmpty()) {
+//                for (TaskManagement taskToUpdate : tasksOfType) {
+//                    taskToUpdate.setAssigneeId(request.getAssigneeId());
+//                    taskRepository.save(taskToUpdate);
+//                }
+//            } else {
+//                // Create a new task if none exist
+//                TaskManagement newTask = new TaskManagement();
+//                newTask.setReferenceId(request.getReferenceId());
+//                newTask.setReferenceType(request.getReferenceType());
+//                newTask.setTask(taskType);
+//                newTask.setAssigneeId(request.getAssigneeId());
+//                newTask.setStatus(TaskStatus.ASSIGNED);
+//                taskRepository.save(newTask);
+//            }
+//        }
+            // BUG #1: Fixed
+            for (TaskManagement oldTask : tasksOfType) {
+                oldTask.setStatus(TaskStatus.CANCELLED);
+                taskRepository.save(oldTask);
             }
+            // Create a new task for the new assignee
+            TaskManagement newTask = new TaskManagement();
+            newTask.setReferenceId(request.getReferenceId());
+            newTask.setReferenceType(request.getReferenceType());
+            newTask.setTask(taskType);
+            newTask.setAssigneeId(request.getAssigneeId());
+            newTask.setStatus(TaskStatus.ASSIGNED);
+            taskRepository.save(newTask);
         }
-
         return "Tasks assigned successfully for reference " + request.getReferenceId();
     }
 
