@@ -10,6 +10,7 @@ import com.railse.hiring.workforcemgmt.model.enums.TaskStatus;
 import com.railse.hiring.workforcemgmt.repository.TaskRepository;
 import com.railse.hiring.workforcemgmt.service.TaskManagementService;
 import org.springframework.stereotype.Service;
+import com.railse.hiring.workforcemgmt.model.Comment;
 
 
 import java.util.ArrayList;
@@ -30,6 +31,15 @@ public class TaskManagementServiceImpl implements TaskManagementService {
         this.taskMapper = taskMapper;
     }
 
+    @Override
+    public TaskManagementDto addComment(Long taskId, Comment comment) {
+        TaskManagement task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+        comment.setTimestamp(System.currentTimeMillis());
+        task.getComments().add(comment);
+        // Optionally add an activity log here too
+        return taskMapper.modelToDto(taskRepository.save(task));
+    }
 
     @Override
     public TaskManagementDto updatePriority(Long id, Priority priority) {

@@ -1,4 +1,5 @@
 package com.railse.hiring.workforcemgmt.controller;
+import com.railse.hiring.workforcemgmt.model.Comment;
 
 
 import com.railse.hiring.workforcemgmt.common.model.response.Response;
@@ -66,5 +67,10 @@ public class TaskManagementController {
     }
 
 
+
+    @PostMapping("/{id}/comments")
+    public Response<TaskManagementDto> addComment(@PathVariable Long id, @RequestBody Comment comment) {
+        return new Response<>(taskManagementService.addComment(id, comment));
+    }
 
 }
